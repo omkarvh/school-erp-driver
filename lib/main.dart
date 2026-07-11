@@ -3,18 +3,31 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:geolocator/geolocator.dart';
+import 'branding/branding.dart';
+import 'branding/branding_service.dart';
+import 'config/app_config.dart';
 import 'services/api_service.dart';
 import 'services/background_service.dart';
+import 'services/update_service.dart';
 
 // =============================================================================
 // DESIGN TOKENS
 // =============================================================================
 abstract final class AppColors {
-  // Primary gradient — deep navy to teal
+  // Primary gradient — deep navy (fixed dark identity, not brand-configurable)
   static const Color primary = Color(0xFF0D1B2A);
   static const Color primaryLight = Color(0xFF1B2D45);
-  static const Color accent = Color(0xFF00C9A7);
-  static const Color accentDark = Color(0xFF00A388);
+
+  // Accent — the action color. RUNTIME-mutable via [applyBranding]; do not use
+  // in `const` expressions.
+  static Color accent = const Color(0xFF00C9A7);
+  static Color accentDark = const Color(0xFF00A388);
+
+  /// Apply a resolved [Branding] to the runtime-mutable accent tokens.
+  static void applyBranding(Branding b) {
+    accent = b.accent;
+    accentDark = b.accentDark;
+  }
 
   // Status
   static const Color success = Color(0xFF00E676);
@@ -39,22 +52,49 @@ abstract final class AppColors {
 // =============================================================================
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Load cached (or compile-time fallback) branding BEFORE the first frame so the
+  // app opens instantly and offline, already themed (plan §5.1 N2). Never throws.
+  final brand = (await BrandingService.loadCached()).effective;
+  AppColors.applyBranding(brand);
+
   await initializeService();
-  runApp(const DriverApp());
+  runApp(DriverApp(initialBranding: brand));
 }
 
-class DriverApp extends StatelessWidget {
-  const DriverApp({super.key});
+class DriverApp extends StatefulWidget {
+  final Branding initialBranding;
+  const DriverApp({super.key, required this.initialBranding});
+
+  @override
+  State<DriverApp> createState() => _DriverAppState();
+}
+
+class _DriverAppState extends State<DriverApp> {
+  late Branding _branding = widget.initialBranding;
+
+  @override
+  void initState() {
+    super.initState();
+    // Background refresh of the platform brand after the first frame. A failure
+    // is silently ignored (plan E7) — branding is cosmetic.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final fetched = (await BrandingService.fetchAndCache()).effective;
+      if (!mounted) return;
+      AppColors.applyBranding(fetched);
+      setState(() => _branding = fetched);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Driver Tracker',
+      title: _branding.appName,
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Brightness.dark,
         scaffoldBackgroundColor: AppColors.primary,
-        colorScheme: const ColorScheme.dark(
+        colorScheme: ColorScheme.dark(
           primary: AppColors.accent,
           secondary: AppColors.accentDark,
           surface: AppColors.surface,
@@ -168,7 +208,7 @@ class _SplashScreenState extends State<SplashScreen>
                     height: 100,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      gradient: const LinearGradient(
+                      gradient: LinearGradient(
                         colors: [AppColors.accent, AppColors.accentDark],
                       ),
                       boxShadow: [
@@ -187,7 +227,7 @@ class _SplashScreenState extends State<SplashScreen>
                   ),
                   const SizedBox(height: 24),
                   const Text(
-                    'Driver Tracker',
+                    AppConfig.appName,
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
@@ -242,6 +282,7 @@ class _LoginScreenState extends State<LoginScreen>
 
   bool _isLoading = false;
   bool _obscurePassword = true;
+  bool _isDemoMode = false;
   String _errorMessage = '';
 
   late AnimationController _animController;
@@ -263,6 +304,12 @@ class _LoginScreenState extends State<LoginScreen>
       CurvedAnimation(parent: _animController, curve: Curves.easeOut),
     );
     _animController.forward();
+    _checkDemoMode();
+  }
+
+  Future<void> _checkDemoMode() async {
+    final isDemo = await ApiService.checkDemoMode();
+    if (mounted) setState(() => _isDemoMode = isDemo);
   }
 
   @override
@@ -318,6 +365,43 @@ class _LoginScreenState extends State<LoginScreen>
     }
   }
 
+  Future<void> _demoLogin() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = '';
+    });
+
+    try {
+      final result = await ApiService.demoLogin();
+      if (!mounted) return;
+
+      if (result['status'] == 'success') {
+        final data = result['data'];
+        Navigator.pushReplacement(
+          context,
+          _fadeRoute(
+            DashboardScreen(
+              token: data['api_token'],
+              driverName: data['driver_name'] ?? 'Driver',
+              vehicleNumber: data['vehicle_number'] ?? '',
+              schoolName: data['school_name'] ?? '',
+            ),
+          ),
+        );
+      } else {
+        setState(() {
+          _errorMessage = result['message'] ?? 'Demo login is unavailable right now.';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Connection error. Please check your internet.';
+      });
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
   InputDecoration _inputDecoration({
     required String label,
     required IconData icon,
@@ -340,7 +424,7 @@ class _LoginScreenState extends State<LoginScreen>
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(color: AppColors.accent, width: 1.5),
+        borderSide: BorderSide(color: AppColors.accent, width: 1.5),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(14),
@@ -380,7 +464,7 @@ class _LoginScreenState extends State<LoginScreen>
                           height: 80,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            gradient: const LinearGradient(
+                            gradient: LinearGradient(
                               colors: [AppColors.accent, AppColors.accentDark],
                             ),
                             boxShadow: [
@@ -502,7 +586,7 @@ class _LoginScreenState extends State<LoginScreen>
                           height: 54,
                           child: DecoratedBox(
                             decoration: BoxDecoration(
-                              gradient: const LinearGradient(
+                              gradient: LinearGradient(
                                 colors: [AppColors.accent, AppColors.accentDark],
                               ),
                               borderRadius: BorderRadius.circular(14),
@@ -544,11 +628,40 @@ class _LoginScreenState extends State<LoginScreen>
                             ),
                           ),
                         ),
+
+                        // Demo quick-access (only when server is in demo mode)
+                        if (_isDemoMode) ...[
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            width: double.infinity,
+                            height: 52,
+                            child: OutlinedButton.icon(
+                              onPressed: _isLoading ? null : _demoLogin,
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: AppColors.accent,
+                                side: BorderSide(
+                                    color: AppColors.accent.withOpacity(0.6)),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                              ),
+                              icon: const Icon(Icons.bolt_rounded, size: 20),
+                              label: const Text(
+                                'DEMO LOGIN',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 1.0,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                         const SizedBox(height: 40),
 
                         // Footer
                         Text(
-                          'Powered by Projectworlds',
+                          AppConfig.poweredBy,
                           style: TextStyle(
                             fontSize: 11,
                             color: AppColors.textMuted.withOpacity(0.5),
@@ -607,6 +720,11 @@ class _DashboardScreenState extends State<DashboardScreen>
     _pulseAnim = Tween<double>(begin: 1.0, end: 1.15).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
+
+    // Once-per-run "update available" check (silent on any failure).
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) UpdateService.maybePrompt(context);
+    });
   }
 
   @override
@@ -701,11 +819,11 @@ class _DashboardScreenState extends State<DashboardScreen>
             builder: (ctx) => AlertDialog(
               backgroundColor: AppColors.surface,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-              title: const Row(
+              title: Row(
                 children: [
                   Icon(Icons.gps_fixed, color: AppColors.accent, size: 24),
-                  SizedBox(width: 10),
-                  Text('Background Location',
+                  const SizedBox(width: 10),
+                  const Text('Background Location',
                       style: TextStyle(color: AppColors.textPrimary, fontSize: 18)),
                 ],
               ),
@@ -954,7 +1072,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                           ),
                           border: Border.all(color: AppColors.accent.withOpacity(0.3)),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.person_rounded,
                           color: AppColors.accent,
                           size: 26,
@@ -986,14 +1104,14 @@ class _DashboardScreenState extends State<DashboardScreen>
                                   child: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      const Icon(Icons.directions_bus_rounded,
+                                      Icon(Icons.directions_bus_rounded,
                                           color: AppColors.accent, size: 14),
                                       const SizedBox(width: 6),
                                       Text(
                                         widget.vehicleNumber.isNotEmpty
                                             ? widget.vehicleNumber
                                             : 'N/A',
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           color: AppColors.accent,
                                           fontSize: 13,
                                           fontWeight: FontWeight.w600,
@@ -1153,7 +1271,7 @@ class _DashboardScreenState extends State<DashboardScreen>
               Padding(
                 padding: const EdgeInsets.only(bottom: 20),
                 child: Text(
-                  'Driver Tracker v1.0',
+                  AppConfig.appVersionLabel,
                   style: TextStyle(
                     fontSize: 11,
                     color: AppColors.textMuted.withOpacity(0.4),

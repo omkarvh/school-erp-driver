@@ -1,0 +1,161 @@
+PROJECTWORLDS COMMERCIAL SOURCE CODE LICENSE
+Multi-School ERP SaaS Script + Mobile App V2.0
+Copyright (c) 2026 ProjectWorlds — www.projectworlds.com
+Author: Yugesh Kumar Verma
+Contact: contact@projectworlds.com | +91 6263056779
+
+===============================================================
+IMPORTANT: READ THIS LICENSE CAREFULLY BEFORE USING THIS SOFTWARE
+===============================================================
+
+This software and its source code ("Original Work") is the exclusive
+intellectual property of ProjectWorlds. Originality is established
+through publicly timestamped records including GitHub repository
+history, YouTube channel publications, and website content at
+projectworlds.com — all predating any sale or distribution.
+
+---------------------------------------------------------------
+1. COPYRIGHT OWNERSHIP
+---------------------------------------------------------------
+
+1.1 ProjectWorlds retains full copyright and intellectual property
+    ownership of this Original Work.
+
+1.2 No part of this license transfers copyright ownership to the buyer.
+    The buyer receives a license to use, modify, and deploy — not
+    ownership of the original codebase.
+
+1.3 The buyer may not claim authorship or copyright over the unmodified
+    Original Work under any circumstances.
+
+---------------------------------------------------------------
+2. LICENSE GRANT
+---------------------------------------------------------------
+
+Upon full payment, the buyer is granted a non-exclusive, perpetual,
+worldwide, royalty-free license to:
+
+2.1 Install and deploy this software on unlimited servers.
+
+2.2 Modify the source code and create derivative works.
+
+2.3 Use modified or unmodified versions for commercial purposes,
+    client projects, and SaaS deployments without paying additional
+    fees or royalties to ProjectWorlds.
+
+2.4 Claim ownership of their own modifications and additions only.
+    The underlying original codebase remains the property of
+    ProjectWorlds.
+
+---------------------------------------------------------------
+3. RESTRICTIONS
+---------------------------------------------------------------
+
+3.1 The buyer may NOT resell, sublicense, or redistribute the
+    original unmodified source code to third parties as their
+    own product without prior written permission from ProjectWorlds.
+
+3.2 The buyer may NOT remove, alter, or hide this license file
+    from the project directory.
+
+3.3 The buyer may NOT file any copyright, intellectual property,
+    or ownership claim against ProjectWorlds in relation to
+    this Original Work.
+
+3.4 Any redistribution of the unmodified source code must retain
+    acknowledgment that the original work belongs to ProjectWorlds
+    (www.projectworlds.com).
+
+---------------------------------------------------------------
+4. DERIVATIVE WORKS & RESALE
+---------------------------------------------------------------
+
+4.1 The buyer may build and sell their own product or SaaS platform
+    based on a modified version of this script.
+
+4.2 Such derivative products are entirely the buyer's own
+    responsibility. ProjectWorlds has no obligation, liability,
+    or involvement in derivative works.
+
+4.3 ProjectWorlds does not restrict the buyer from using this
+    code to build client projects, white-label products, or
+    commercial SaaS platforms.
+
+---------------------------------------------------------------
+5. DISCLAIMER OF WARRANTY
+---------------------------------------------------------------
+
+5.1 This software is provided "as is" without warranty of any kind,
+    express or implied, including but not limited to warranties of
+    merchantability, fitness for a particular purpose, or
+    non-infringement.
+
+5.2 ProjectWorlds does not guarantee that this software will be
+    error-free, uninterrupted, or suitable for every use case.
+
+5.3 The buyer assumes full responsibility for testing and validating
+    the software for their specific deployment environment.
+
+---------------------------------------------------------------
+6. LIMITATION OF LIABILITY
+---------------------------------------------------------------
+
+6.1 ProjectWorlds shall not be held liable for any direct, indirect,
+    incidental, special, or consequential damages arising from the
+    use, modification, or deployment of this software.
+
+6.2 This includes but is not limited to: data loss, financial loss,
+    security breaches, legal disputes, or service downtime.
+
+6.3 ProjectWorlds is not responsible for any modifications made by
+    the buyer or any third party after delivery of the Original Work.
+
+6.4 Any modified version of this software is solely the responsibility
+    of the party who made such modifications.
+
+---------------------------------------------------------------
+7. INDEMNIFICATION
+---------------------------------------------------------------
+
+7.1 The buyer agrees to indemnify and hold ProjectWorlds, its owner,
+    and its team harmless from any claims, damages, disputes, or
+    legal proceedings arising from the buyer's use, modification,
+    deployment, or distribution of this software.
+
+7.2 Any third party who receives a modified version of this software
+    from a buyer cannot hold ProjectWorlds liable for that version's
+    performance, security, or legality.
+
+---------------------------------------------------------------
+8. SUPPORT & UPDATES
+---------------------------------------------------------------
+
+8.1 One (1) year of software updates and bug fixes is included
+    from the date of purchase.
+
+8.2 Free installation support is provided for one (1) production
+    deployment only. Additional deployments are chargeable.
+
+8.3 Support covers bug fixes and updates only. Custom feature
+    development is billed separately.
+
+8.4 No refund will be issued after source code has been delivered,
+    as this is a digital product.
+
+---------------------------------------------------------------
+9. GOVERNING LAW
+---------------------------------------------------------------
+
+9.1 This license is governed by the laws of India.
+
+9.2 Any disputes shall be subject to the jurisdiction of courts
+    in India.
+
+9.3 By making payment and using this software, the buyer confirms
+    they have read, understood, and agreed to all terms of
+    this license.
+
+===============================================================
+ProjectWorlds — Your EdTech Empire Starts Here
+www.projectworlds.com | contact@projectworlds.com
+===============================================================
