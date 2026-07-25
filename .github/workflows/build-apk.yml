@@ -27,7 +27,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.35.1'   # matches pubspec.lock (built on Flutter 3.35.x)
+          flutter-version: '3.44.8'   # driver builds cleanly on latest; 3.35.1 breaks its deps
           channel: stable
           cache: true
 
