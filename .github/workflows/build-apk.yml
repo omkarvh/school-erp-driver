@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 env:
-  API_ORIGIN: https://hi-educare.researcheducationsociety.in
+  API_ORIGIN: https://educare.hiideals.com
 
 jobs:
   build-apk:
